@@ -14,6 +14,7 @@ public class Main {
 		System.out.println(p);
 		
 		UnoGame uno = new UnoGame();
+		uno.begin();
 		for(int i=0; i<10; i++)
 			uno.turn();
 	}
