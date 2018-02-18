@@ -2,6 +2,17 @@ package Uno;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javafx.application.*;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class UnoGame extends Application{
@@ -44,15 +55,11 @@ public class UnoGame extends Application{
 	
 	public void turn() {
 		System.out.println("It's now player " + currentPlayer + "'s turn");
-		if(deck.isEmpty()) {
-			Card top = pile.remove(pile.size()-1);
-			deck.refillDeck(pile);
-			pile.clear();
-			pile.add(top);
-		}
+		refillDeck();
 			
 		while(!players[currentPlayer].hasLegalMove(topCard(), color)) {
 			players[currentPlayer].draw(deck);
+			refillDeck();
 		}
 		System.out.println("Player has " + players[currentPlayer]);
 		pile.add(players[currentPlayer].playCard());
@@ -90,6 +97,15 @@ public class UnoGame extends Application{
 		}
 	}
 	
+	private void refillDeck() {
+		if(deck.isEmpty()) {
+			Card top = pile.remove(pile.size()-1);
+			deck.refillDeck(pile);
+			pile.clear();
+			pile.add(top);
+		}
+	}
+	
 	private void nextPlayer() {
 		if(clockwise)
 			currentPlayer = (currentPlayer < players.length-1) ? currentPlayer+1:0;
@@ -102,14 +118,51 @@ public class UnoGame extends Application{
 	}
 
 	public void begin() {
-		initGame();
 		Application.launch();
 	}
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
+		initGame();
+		int width = 500;
+		int height = 500;
 		primaryStage.setTitle("Uno");
+		
+		Button playButton = new Button("Play");
+		StackPane pane = new StackPane();
+		Image img = new Image("images/" + topCard().getColor() + topCard().getValue() + ".png");
+		
+		BackgroundImage bgImg = new BackgroundImage(img, 
+			    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+			    BackgroundPosition.CENTER, 
+			    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false));
+		
+		playButton.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				System.out.println(pile);
+				turn();
+				Image img = new Image("images/" + topCard().getColor() + topCard().getValue() + ".png");
+				
+				BackgroundImage bgImg = new BackgroundImage(img, 
+					    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+					    BackgroundPosition.CENTER, 
+					    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false));
+				pane.setBackground(new Background(bgImg));
+			}
+			
+		});
+		
+		playButton.setLayoutX(width/2);
+		playButton.setLayoutY(50);
+		
+		pane.setBackground(new Background(bgImg));
+		pane.getChildren().add(playButton);
+		Scene scene = new Scene(pane, 500, 500);
+		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 }

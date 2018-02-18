@@ -2,7 +2,7 @@ package Uno;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		// TODO Auto-generated method stub
 		Deck deck = new Deck();
 		Player p = new Player(deck);
@@ -15,8 +15,6 @@ public class Main {
 		
 		UnoGame uno = new UnoGame();
 		uno.begin();
-		for(int i=0; i<10; i++)
-			uno.turn();
 	}
 	
 	
