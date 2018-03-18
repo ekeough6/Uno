@@ -26,7 +26,11 @@ public class Card {
 	}
 	
 	public boolean canPlay(Card c, String col) {
-		return  col.equals(color) || c.getValue().equals(value);
+		return  col.equals(color) || c.getValue().equals(value) || isWild();
+	}
+	
+	public boolean isWild() {
+		return color.equals("wild");
 	}
 	
 	public String toString() {

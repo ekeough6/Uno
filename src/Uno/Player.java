@@ -45,6 +45,10 @@ public class Player {
 		return null;
 	}
 	
+	public Card viewCard(int position) {
+		return hand.get(position);
+	}
+	
 	public String toString() {
 		return hand.toString();
 	}

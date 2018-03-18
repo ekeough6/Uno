@@ -7,11 +7,14 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -23,8 +26,10 @@ public class UnoGame extends Application{
 	private Player[] players;
 	private String color;
 	private boolean clockwise;
-	private int currentPlayer;
-	Scanner input;
+	private int currentPlayer, winner;
+	private Scanner input;
+	private final int WIDTH = 500;
+	private final int HEIGHT = 500;
 	
 	//Selection for different types of rules
 	public static final int NORMAL_RULES = 0;
@@ -39,6 +44,7 @@ public class UnoGame extends Application{
 			players[i] = new Player(deck);
 		clockwise = true;
 		currentPlayer = 0;
+		winner = -1;
 		input = new Scanner(System.in);
 	}
 	
@@ -63,14 +69,10 @@ public class UnoGame extends Application{
 		}
 		System.out.println("Player has " + players[currentPlayer]);
 		pile.add(players[currentPlayer].playCard());
-		if(pile.get(pile.size()-1).getColor().equals("wild")) {
-			do {
-				color = input.next();
-			} while(!color.equals("red") && !color.equals("blue") && !color.equals("yellow") && !color.equals("green"));
-		}
-		else
-			color = topCard().getColor();
+		color = topCard().getColor();
 		performAction();
+		if(players[currentPlayer].cardsInHand() == 0)
+			winner = currentPlayer;
 		nextPlayer();
 		
 		System.out.println(topCard());
@@ -94,6 +96,9 @@ public class UnoGame extends Application{
 			else if(top.getValue().equals("skip")) {
 				nextPlayer();
 			}
+		}
+		if(top.isWild()) {
+			color = new String[] {"red", "green", "blue", "yellow"}[(int)(Math.random() * 4)];
 		}
 	}
 	
@@ -125,19 +130,11 @@ public class UnoGame extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
 		initGame();
-		int width = 500;
-		int height = 500;
 		primaryStage.setTitle("Uno");
 		
 		Button playButton = new Button("Play");
-		StackPane pane = new StackPane();
-		Image img = new Image("images/" + topCard().getColor() + topCard().getValue() + ".png");
-		
-		BackgroundImage bgImg = new BackgroundImage(img, 
-			    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-			    BackgroundPosition.CENTER, 
-			    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false));
-		
+		CardPane pane = new CardPane(topCard());
+		HandPane hand1 = new HandPane(players[0]); 
 		playButton.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -145,24 +142,67 @@ public class UnoGame extends Application{
 				// TODO Auto-generated method stub
 				System.out.println(pile);
 				turn();
-				Image img = new Image("images/" + topCard().getColor() + topCard().getValue() + ".png");
-				
-				BackgroundImage bgImg = new BackgroundImage(img, 
-					    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-					    BackgroundPosition.CENTER, 
-					    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false));
-				pane.setBackground(new Background(bgImg));
+				hand1.addCards(players[0]);
+				pane.changeCard(topCard());
+				if(winner > -1) {
+					System.exit(0);
+				}
 			}
 			
 		});
 		
-		playButton.setLayoutX(width/2);
+		playButton.setLayoutX(WIDTH/2);
 		playButton.setLayoutY(50);
 		
-		pane.setBackground(new Background(bgImg));
-		pane.getChildren().add(playButton);
-		Scene scene = new Scene(pane, 500, 500);
+		
+		
+		pane.changeCard(topCard());
+		pane.setBottom(hand1);
+		hand1.relocate(0, 300);
+		pane.setCenter(playButton);
+		
+		Scene scene = new Scene(pane, WIDTH, HEIGHT);
+		
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
+	
+	class CardPane extends BorderPane {
+		public CardPane(Card card) {
+			changeCard(card);
+		}
+		
+		public void changeCard(Card card) {
+			Image img = new Image("images/" + card.getColor() + card.getValue() + ".png");
+			
+			BackgroundImage bgImg = new BackgroundImage(img, 
+				    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+				    BackgroundPosition.CENTER, 
+				    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false));
+			setBackground(new Background(bgImg));
+		}
+	}
+	
+	class HandPane extends FlowPane {
+		public HandPane(Player player) {
+			setVgap(8);
+		    setHgap(5);
+		    setPrefWrapLength(WIDTH);
+		    addCards(player);
+		}
+		
+		public void addCards(Player player) {
+			getChildren().clear();
+			for(int i=0; i<player.cardsInHand(); i++) {
+				Card card = player.viewCard(i);
+				ImageView iv = new ImageView();
+				iv.setImage(new Image("images/" + card.getColor() + card.getValue() + ".png"));
+				iv.setFitWidth(WIDTH/7.0);
+				iv.setFitHeight(150);
+				iv.setPreserveRatio(true);
+				getChildren().add(iv);
+			}
+		}
+	}
+	
 }
