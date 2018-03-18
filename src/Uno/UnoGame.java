@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -28,8 +29,11 @@ public class UnoGame extends Application{
 	private boolean clockwise;
 	private int currentPlayer, winner;
 	private Scanner input;
-	private final int WIDTH = 500;
-	private final int HEIGHT = 500;
+	private Button playButton;
+	private CardPane pane;
+	private HandPane hand1;
+	private final int WIDTH = 1000;
+	private final int HEIGHT = 800;
 	
 	//Selection for different types of rules
 	public static final int NORMAL_RULES = 0;
@@ -59,14 +63,18 @@ public class UnoGame extends Application{
 		clockwise = true;
 	}
 	
-	public void turn() {
-		System.out.println("It's now player " + currentPlayer + "'s turn");
-		refillDeck();
-			
+	
+	private void drawToPlay() {
 		while(!players[currentPlayer].hasLegalMove(topCard(), color)) {
 			players[currentPlayer].draw(deck);
 			refillDeck();
 		}
+	}
+	
+	public void turn() {
+		System.out.println("It's now player " + currentPlayer + "'s turn");
+		refillDeck();
+		drawToPlay();
 		System.out.println("Player has " + players[currentPlayer]);
 		pile.add(players[currentPlayer].playCard());
 		color = topCard().getColor();
@@ -76,7 +84,26 @@ public class UnoGame extends Application{
 		nextPlayer();
 		
 		System.out.println(topCard());
+		if(currentPlayer == 0)
+			playButton.setText("Draw");
 
+	}
+	
+	public void turn(Card card) {
+		System.out.println("It's now player " + currentPlayer + "'s turn");
+		refillDeck();
+		
+		System.out.println("Player has " + players[currentPlayer]);
+		pile.add(card);
+		color = topCard().getColor();
+		performAction();
+		if(players[currentPlayer].cardsInHand() == 0)
+			winner = currentPlayer;
+		nextPlayer();
+		
+		System.out.println(topCard());
+		playButton.setText("Play");
+		hand1.addCards(players[0]);
 	}
 	
 	private void performAction() {
@@ -132,21 +159,28 @@ public class UnoGame extends Application{
 		initGame();
 		primaryStage.setTitle("Uno");
 		
-		Button playButton = new Button("Play");
-		CardPane pane = new CardPane(topCard());
-		HandPane hand1 = new HandPane(players[0]); 
+		playButton = new Button("Draw");
+		pane = new CardPane(topCard());
+		hand1 = new HandPane(players[0]); 
 		playButton.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				System.out.println(pile);
-				turn();
-				hand1.addCards(players[0]);
-				pane.changeCard(topCard());
-				if(winner > -1) {
-					System.exit(0);
+				if(currentPlayer != 0) {
+					turn();
+					pane.changeCard(topCard());
+					if(winner > -1) {
+						System.exit(0);
+					}
 				}
+				
+				else {
+					drawToPlay();
+					hand1.addCards(players[0]);
+				}
+				
 			}
 			
 		});
@@ -197,9 +231,29 @@ public class UnoGame extends Application{
 				Card card = player.viewCard(i);
 				ImageView iv = new ImageView();
 				iv.setImage(new Image("images/" + card.getColor() + card.getValue() + ".png"));
-				iv.setFitWidth(WIDTH/7.0);
+				iv.setFitWidth(WIDTH/15.0);
 				iv.setFitHeight(150);
 				iv.setPreserveRatio(true);
+				int loc = i;
+				iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(MouseEvent arg0) {
+						// TODO Auto-generated method stub
+						if(currentPlayer == 0) {
+							if(players[currentPlayer].isLegalMove(topCard(), color, loc)) {
+								turn(players[currentPlayer].playCard(loc));
+								hand1.addCards(players[0]);
+								pane.changeCard(topCard());
+								if(winner > -1) {
+									System.exit(0);
+								}
+							}
+							
+						}
+						
+					}
+			
+				});
 				getChildren().add(iv);
 			}
 		}

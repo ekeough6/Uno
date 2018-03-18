@@ -27,13 +27,22 @@ public class Player {
 	public int cardsInHand() {
 		return hand.size();
 	}
-
-	public boolean hasLegalMove(Card topCard, String color) {
+	
+	private void getLegalMoves(Card topCard, String color) {
 		legalMoves.clear();
 		for(int i=0; i<hand.size(); i++) {
 			if(hand.get(i).canPlay(topCard, color))
 				legalMoves.add(i);
 		}
+	}
+	
+	public boolean isLegalMove(Card topCard, String color, int position) {
+		getLegalMoves(topCard, color);
+		return legalMoves.contains(position);
+	}
+
+	public boolean hasLegalMove(Card topCard, String color) {
+		getLegalMoves(topCard, color);
 		return legalMoves.size() > 0;
 	}
 
@@ -42,7 +51,7 @@ public class Player {
 	}
 	
 	public Card playCard(int handPosition) {
-		return null;
+		return hand.remove(handPosition);
 	}
 	
 	public Card viewCard(int position) {
