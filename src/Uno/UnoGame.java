@@ -1,14 +1,11 @@
 package Uno;
 import java.util.ArrayList;
-import java.util.Scanner;
-import javafx.application.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+
+import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -16,7 +13,6 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class UnoGame extends Application{
@@ -28,7 +24,6 @@ public class UnoGame extends Application{
 	private String color;
 	private boolean clockwise;
 	private int currentPlayer, winner;
-	private Scanner input;
 	private Button playButton;
 	private CardPane pane;
 	private HandPane hand1;
@@ -49,7 +44,6 @@ public class UnoGame extends Application{
 		clockwise = true;
 		currentPlayer = 0;
 		winner = -1;
-		input = new Scanner(System.in);
 	}
 	
 	private void initGame() {
@@ -162,25 +156,20 @@ public class UnoGame extends Application{
 		playButton = new Button("Draw");
 		pane = new CardPane(topCard());
 		hand1 = new HandPane(players[0]); 
-		playButton.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println(pile);
-				if(currentPlayer != 0) {
-					turn();
-					pane.changeCard(topCard());
-					if(winner > -1) {
-						System.exit(0);
-					}
+		playButton.setOnAction(arg0 -> {
+			// TODO Auto-generated method stub
+			System.out.println(pile);
+			if(currentPlayer != 0) {
+				turn();
+				pane.changeCard(topCard());
+				if(winner > -1) {
+					System.exit(0);
 				}
-				
-				else {
-					drawToPlay();
-					hand1.addCards(players[0]);
-				}
-				
+			}
+			
+			else {
+				drawToPlay();
+				hand1.addCards(players[0]);
 			}
 			
 		});
@@ -235,24 +224,20 @@ public class UnoGame extends Application{
 				iv.setFitHeight(150);
 				iv.setPreserveRatio(true);
 				int loc = i;
-				iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent arg0) {
-						// TODO Auto-generated method stub
-						if(currentPlayer == 0) {
-							if(players[currentPlayer].isLegalMove(topCard(), color, loc)) {
-								turn(players[currentPlayer].playCard(loc));
-								hand1.addCards(players[0]);
-								pane.changeCard(topCard());
-								if(winner > -1) {
-									System.exit(0);
-								}
+				iv.setOnMouseClicked(arg0 -> {
+					// TODO Auto-generated method stub
+					if(currentPlayer == 0) {
+						if(players[currentPlayer].isLegalMove(topCard(), color, loc)) {
+							turn(players[currentPlayer].playCard(loc));
+							hand1.addCards(players[0]);
+							pane.changeCard(topCard());
+							if(winner > -1) {
+								System.exit(0);
 							}
-							
 						}
 						
 					}
-			
+					
 				});
 				getChildren().add(iv);
 			}
