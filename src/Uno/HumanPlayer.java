@@ -1,40 +1,23 @@
 package Uno;
 import java.util.ArrayList;
 
-public class HumanPlayer  {
-	
+public class HumanPlayer extends Player {
+
 	private ArrayList<Card> hand;
-	
+
 	public HumanPlayer(Deck d) {
-		hand = new ArrayList<Card>();
-		for(int i=0; i<5; i++) {
-			draw(d);
-		}
-	}
-	
-	public void draw(Deck d) {
-		// TODO Auto-generated method stub
-		hand.add(d.drawCard());
+		super(d);
 	}
 
-	public int cardsInHand() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public boolean hasLegalMove(Card topCard) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public Card playCard(int handPosition) {
-		// TODO Auto-generated method stub
+	@Override
+	public Card playCard(Card card, String color) {
 		return null;
 	}
-	
+
 	@Override
-	public String toString() {
-		return hand.toString();
+	public String chooseColor() {
+		return  new String[] {"red", "blue", "green", "yellow"}[(int)(Math.random()*4)];
 	}
+
 
 }

@@ -1,6 +1,7 @@
 package Uno;
+import java.util.ArrayList;
 
-public class Card {
+public class Card implements Comparable {
 	private String color;
 	private String value;
 	
@@ -26,7 +27,7 @@ public class Card {
 	}
 	
 	public boolean canPlay(Card c, String col) {
-		return  col.equals(color) || c.getValue().equals(value) || isWild();
+		return col.equals(color) || c.getValue().equals(value) || isWild();
 	}
 	
 	public boolean isWild() {
@@ -35,5 +36,28 @@ public class Card {
 	
 	public String toString() {
 		return color + " " + value;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		ArrayList<String> order = new ArrayList<String>();
+		order.add("d4");
+		order.add("d2");
+		order.add("wild");
+		order.add("rev");
+		order.add("skip");
+		if(isAction() || getValue().equals("wild")){
+			if(((Card)o).isNumber() || order.indexOf(getValue()) >= order.indexOf(((Card)o).getValue()))
+				return 1;
+			else
+				return -1;
+		}
+		else {
+			if(((Card)o).isNumber() && Integer.parseInt(((Card)o).getValue()) > Integer.parseInt(getValue()))
+				return 1;
+			else
+				return -1;
+		}
+
 	}
 }
