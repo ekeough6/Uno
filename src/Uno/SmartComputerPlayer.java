@@ -1,5 +1,6 @@
 package Uno;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class SmartComputerPlayer extends Player {
@@ -9,12 +10,12 @@ public class SmartComputerPlayer extends Player {
 
     @Override
     public Card playCard(Card card, String color) {
-        ArrayList<Integer> cards = new ArrayList<Integer>();
+        ArrayList<Integer> cards = new ArrayList<>();
         for(int i=0; i<cardsInHand(); i++) {
             if(isLegalMove(card, color, i))
                 cards.add(i);
         }
-        cards.sort((o1, o2) -> viewCard(o1).compareTo(viewCard(o2)));
+        cards.sort(Comparator.comparing(this::viewCard));
         return playCard(cards.get(0));
     }
 

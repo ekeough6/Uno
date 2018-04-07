@@ -19,7 +19,7 @@ public class Card implements Comparable {
 	}
 	
 	public boolean isNumber() {
-		return !isAction();
+		return !isAction() && !color.equals("wild");
 	}
 	
 	public boolean isAction() {
@@ -31,7 +31,7 @@ public class Card implements Comparable {
 	}
 	
 	public boolean isWild() {
-		return color.equals("wild");
+		return color.equals("wild") || value.equals("d4");
 	}
 	
 	public String toString() {
@@ -53,11 +53,12 @@ public class Card implements Comparable {
 				return -1;
 		}
 		else {
-			if(((Card)o).isNumber() && Integer.parseInt(((Card)o).getValue()) > Integer.parseInt(getValue()))
+			if(((Card)o).isNumber() && isNumber() && Integer.parseInt(((Card)o).getValue()) > Integer.parseInt(getValue()))
 				return 1;
 			else
 				return -1;
 		}
+
 
 	}
 }
