@@ -23,7 +23,6 @@ public class UnoGame extends Application{
 
 	private Deck deck;
 	private ArrayList<Card> pile;
-	private int gameMode;
 	private Player[] players;
 	private String color;
 	private boolean clockwise;
@@ -33,7 +32,8 @@ public class UnoGame extends Application{
 	private HandPane hand1;
 	private BorderPane title, container;
 	private Label player1, player2, player3, colorText;
-	private VBox holder1, holder2, holder3;
+	private VBox holder2;
+	private VBox holder3;
 	private boolean canPlay;
 
 
@@ -41,7 +41,7 @@ public class UnoGame extends Application{
 	private final int HEIGHT = 800;
 
 	//Selection for different types of rules
-	public static final int NORMAL_RULES = 0;
+	private static final int NORMAL_RULES = 0;
 
 	public UnoGame() {
 		newGame();
@@ -71,16 +71,12 @@ public class UnoGame extends Application{
 		players[currentPlayer].draw(deck);
 	}
 
-	public void turn() {
+	private void turn() {
 		canPlay = false;
 		System.out.println("It's now player " + currentPlayer + "'s turn");
 		refillDeck();
 		drawToPlay();
 		System.out.println("Player has " + players[currentPlayer]);
-		//int delay = (int)(Math.random() * 1000 + 1000);
-		int delay = 0;
-		long time = System.currentTimeMillis();
-		while(System.currentTimeMillis() < time + delay) {}
 		pile.add(players[currentPlayer].playCard(topCard(), color));
 		color = topCard().getColor();
 		performAction();
@@ -128,25 +124,27 @@ public class UnoGame extends Application{
 		}
 
 		if(top.isAction()) {
-			if(top.getValue().equals("rev")) {
-				clockwise = !clockwise;
-			}
-			else if(top.getValue().equals("d2")) {
-				nextPlayer();
-				for (int i = 0; i < 2; i++) {
-					refillDeck();
-					players[currentPlayer].draw(deck);
-				}
-			}
-			else if(top.getValue().equals("d4")) {
-				nextPlayer();
-				for(int i=0; i<4; i++) {
-					refillDeck();
-					players[currentPlayer].draw(deck);
-				}
-			}
-			else if(top.getValue().equals("skip")) {
-				nextPlayer();
+			switch (top.getValue()) {
+				case "rev":
+					clockwise = !clockwise;
+					break;
+				case "d2":
+					nextPlayer();
+					for (int i = 0; i < 2; i++) {
+						refillDeck();
+						players[currentPlayer].draw(deck);
+					}
+					break;
+				case "d4":
+					nextPlayer();
+					for (int i = 0; i < 4; i++) {
+						refillDeck();
+						players[currentPlayer].draw(deck);
+					}
+					break;
+				case "skip":
+					nextPlayer();
+					break;
 			}
 		}
 
@@ -177,7 +175,7 @@ public class UnoGame extends Application{
 	}
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) {
 		// TODO Auto-generated method stub
 		initGame();
 		primaryStage.setTitle("Uno");
@@ -190,7 +188,7 @@ public class UnoGame extends Application{
         player2 = new Label(Integer.toString(players[2].cardsInHand()));
         player3 = new Label(Integer.toString(players[3].cardsInHand()));
         colorText = new Label(color);
-        holder1 = new VBox();
+		VBox holder1 = new VBox();
         holder2 = new VBox();
         holder3 = new VBox();
 
@@ -217,9 +215,7 @@ public class UnoGame extends Application{
 		Label unoLabel = new Label("UNO");
 		unoLabel.setFont(Font.font("arial", 145));
 		title.setCenter(unoLabel);
-		title.setOnMouseClicked(e-> {
-		    container.setCenter(pane);
-        });
+		title.setOnMouseClicked(e-> container.setCenter(pane));
 
 
 		playButton = new Button("Play Again");
@@ -375,7 +371,7 @@ public class UnoGame extends Application{
 		deck = new Deck();
 		deck.shuffle();
 		pile = new ArrayList<>();
-		gameMode = NORMAL_RULES;
+		int gameMode = NORMAL_RULES;
 		players = new Player[4];
 		players[0] = new HumanPlayer(deck);
 		players[1] = new MeanComputerPlayer(deck);

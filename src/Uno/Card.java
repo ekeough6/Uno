@@ -18,7 +18,7 @@ public class Card implements Comparable {
 		return value;
 	}
 	
-	public boolean isNumber() {
+	private boolean isNumber() {
 		return !isAction() && !color.equals("wild");
 	}
 	
@@ -40,7 +40,7 @@ public class Card implements Comparable {
 
 	@Override
 	public int compareTo(Object o) {
-		ArrayList<String> order = new ArrayList<String>();
+		ArrayList<String> order = new ArrayList<>();
 		order.add("d4");
 		order.add("d2");
 		order.add("wild");

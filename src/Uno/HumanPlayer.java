@@ -1,9 +1,6 @@
 package Uno;
-import java.util.ArrayList;
 
 public class HumanPlayer extends Player {
-
-	private ArrayList<Card> hand;
 
 	public HumanPlayer(Deck d) {
 		super(d);
