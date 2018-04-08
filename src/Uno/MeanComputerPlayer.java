@@ -30,7 +30,7 @@ public class MeanComputerPlayer extends Player {
 			if(!viewCard(i).isWild())
 				return viewCard(i).getColor();
 		}
-		return null;
+		return new String[] {"red", "blue", "green", "yellow"}[(int)(Math.random()*4)];
 	}
 
 

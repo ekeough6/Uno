@@ -23,9 +23,9 @@ public class Deck {
 			}
 		}
 		String[] wildCards = {"wild", "d4"};
-		for(int x = 0; x< wildCards.length; x++) {
-			for(int i = 0; i< numWild; i++) {
-				cards.add(new Card("wild", wildCards[x]));
+		for (String wildCard : wildCards) {
+			for (int i = 0; i < numWild; i++) {
+				cards.add(new Card("wild", wildCard));
 			}
 		}
 	}

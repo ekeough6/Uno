@@ -15,7 +15,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -32,10 +31,9 @@ public class UnoGame extends Application {
     private Button playButton;
     private CardPane pane;
     private HandPane hand1;
-    private BorderPane title, container;
-    private Label player1, player2, player3, colorText;
-    private VBox holder2;
-    private VBox holder3;
+    private BorderPane title, winScreen, container;
+    private Label player1, player2, player3, colorText, winText;
+    private VBox holder1, holder2, holder3, winnerHolder;
     private boolean canPlay;
     private Timeline autoTurns;
 
@@ -48,6 +46,20 @@ public class UnoGame extends Application {
         newGame();
     }
 
+    private void newGame() {
+        deck = new Deck();
+        deck.shuffle();
+        pile = new ArrayList<>();
+        players = new Player[4];
+        players[0] = new HumanPlayer(deck);
+        players[1] = new MeanComputerPlayer(deck);
+        players[2] = new DumbComputerPlayer(deck);
+        players[3] = new SmartComputerPlayer(deck);
+        clockwise = true;
+        currentPlayer = 0;
+        winner = -1;
+    }
+
     private void initGame() {
         pile.add(deck.drawCard());
         color = topCard().getColor();
@@ -57,6 +69,16 @@ public class UnoGame extends Application {
         }
         currentPlayer = 0;
         clockwise = true;
+    }
+
+
+    public void startGame() {
+        newGame();
+        initGame();
+        container.setCenter(pane);
+        updateText();
+        hand1.addCards(players[0]);
+        pane.changeCard(topCard());
     }
 
     public void begin() {
@@ -83,7 +105,7 @@ public class UnoGame extends Application {
         colorText.setFont(Font.font("arial", 35));
         colorText.setStyle("-fx-stroke: black; -fx-stroke-width: 1;");
         updateText();
-        VBox holder1 = new VBox();
+        holder1 = new VBox();
         holder2 = new VBox();
         holder3 = new VBox();
 
@@ -115,6 +137,18 @@ public class UnoGame extends Application {
         //replay button
         playButton = new Button("Play Again");
         playButton.setOnAction(arg0 -> startGame());
+        playButton.setAlignment(Pos.CENTER);
+
+        winText = new Label();
+        winText.setFont(Font.font("arial", 100));
+        winText.setAlignment(Pos.CENTER);
+        winnerHolder = new VBox();
+        winnerHolder.getChildren().add(playButton);
+        winnerHolder.setAlignment(Pos.CENTER);
+        winScreen = new BorderPane();
+        winScreen.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1, 1), CornerRadii.EMPTY, Insets.EMPTY)));
+        winScreen.setCenter(winText);
+        winScreen.setBottom(winnerHolder);
 
 
         container.setCenter(title);
@@ -189,7 +223,7 @@ public class UnoGame extends Application {
         System.out.println(topCard());
         hand1.addCards(players[0]);
         updateText();
-        autoTurns.play();
+        autoTurns.playFromStart();
     }
 
     private void updateText() {
@@ -206,6 +240,9 @@ public class UnoGame extends Application {
                 break;
             case "yellow":
                 colorText.setTextFill(Color.color(1, 1, 0));
+                break;
+            case "wild":
+                colorText.setTextFill(Color.color(0, 0, 0));
                 break;
         }
         player1.setText(Integer.toString(players[1].cardsInHand()));
@@ -240,9 +277,12 @@ public class UnoGame extends Application {
         Card top = topCard();
 
         if (top.isWild()) {
-            color = players[currentPlayer].chooseColor();
+
             if (currentPlayer == 0) {
                 pane.pickColor();
+            }
+            else {
+                color = players[currentPlayer].chooseColor();
             }
         }
 
@@ -294,37 +334,35 @@ public class UnoGame extends Application {
     }
 
 
-    public void takeTurn() {
+    private void takeTurn() {
         System.out.println(canPlay);
         if (currentPlayer != 0 && canPlay) {
             turn();
             pane.changeCard(topCard());
             canPlay = true;
-            if (winner > -1) {
-                System.exit(0);
-            }
+            checkWinCondition();
         }
 
     }
 
-    private void newGame() {
-        deck = new Deck();
-        deck.shuffle();
-        pile = new ArrayList<>();
-        players = new Player[4];
-        players[0] = new HumanPlayer(deck);
-        players[1] = new MeanComputerPlayer(deck);
-        players[2] = new DumbComputerPlayer(deck);
-        players[3] = new SmartComputerPlayer(deck);
-        clockwise = true;
-        currentPlayer = 0;
-        winner = -1;
-    }
-
-    public void startGame() {
-        newGame();
-        initGame();
-        container.setCenter(pane);
+    private void checkWinCondition() {
+        if (winner > -1) {
+            container.setCenter(winScreen);
+            switch (winner){
+                case 0:
+                    winText.setText("You win!!");
+                    break;
+                case 1:
+                    winText.setText("The winner is \nBachmair");
+                    break;
+                case 2:
+                    winText.setText("The winner is Bender");
+                    break;
+                case 3:
+                    winText.setText("The winner is Fodor");
+                    break;
+            }
+        }
     }
 
     class CardPane extends BorderPane {
@@ -434,9 +472,7 @@ public class UnoGame extends Application {
                             turn(players[currentPlayer].playCard(loc));
                             hand1.addCards(players[0]);
                             pane.changeCard(topCard());
-                            if (winner > -1) {
-                                System.exit(0);
-                            }
+                            checkWinCondition();
                         }
 
                     }

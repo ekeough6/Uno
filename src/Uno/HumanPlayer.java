@@ -13,7 +13,7 @@ public class HumanPlayer extends Player {
 
 	@Override
 	public String chooseColor() {
-		return  new String[] {"red", "blue", "green", "yellow"}[(int)(Math.random()*4)];
+		return new String[] {"red", "blue", "green", "yellow"}[(int)(Math.random()*4)];
 	}
 
 
