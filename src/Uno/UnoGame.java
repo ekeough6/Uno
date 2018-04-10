@@ -1,45 +1,43 @@
 package Uno;
 
-import java.util.ArrayList;
-
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.util.Duration;
+
+import java.util.ArrayList;
 
 public class UnoGame extends Application {
 
+    private final int WIDTH = 1000;
+    private final int HEIGHT = 800;
     private Deck deck;
     private ArrayList<Card> pile;
     private Player[] players;
     private String color;
     private boolean clockwise;
     private int currentPlayer, winner;
-    private Button playButton;
     private CardPane pane;
     private HandPane hand1;
-    private BorderPane title, winScreen, container;
-    private Label player1, player2, player3, colorText, winText;
+    private BorderPane title, container;
+    private FireworkPane winScreen;
+    private Label player1, player2, player3, colorText, winText, bachmair, bender, fodor;
     private VBox holder1, holder2, holder3, winnerHolder;
     private boolean canPlay;
-    private Timeline autoTurns;
-
-
-    private final int WIDTH = 1000;
-    private final int HEIGHT = 800;
+    private Timeline autoTurns, celebrate;
 
 
     public UnoGame() {
@@ -75,6 +73,8 @@ public class UnoGame extends Application {
     public void startGame() {
         newGame();
         initGame();
+        autoTurns.play();
+        celebrate.stop();
         container.setCenter(pane);
         updateText();
         hand1.addCards(players[0]);
@@ -101,6 +101,12 @@ public class UnoGame extends Application {
         player2.setFont(Font.font("arial", 35));
         player3 = new Label(Integer.toString(players[3].cardsInHand()));
         player3.setFont(Font.font("arial", 35));
+        bender = new Label("Bender:");
+        bender.setFont(Font.font("arial", 35));
+        bachmair = new Label("Bachmair:");
+        bachmair.setFont(Font.font("arial", 35));
+        fodor = new Label("Fodor:");
+        fodor.setFont(Font.font("arial", 35));
         colorText = new Label(color);
         colorText.setFont(Font.font("arial", 35));
         colorText.setStyle("-fx-stroke: black; -fx-stroke-width: 1;");
@@ -113,9 +119,9 @@ public class UnoGame extends Application {
         holder1.setAlignment(Pos.CENTER);
         holder2.setAlignment(Pos.CENTER);
         holder3.setAlignment(Pos.CENTER);
-        holder1.getChildren().add(player1);
-        holder2.getChildren().addAll(colorText, player2);
-        holder3.getChildren().add(player3);
+        holder1.getChildren().addAll(bachmair, player1);
+        holder2.getChildren().addAll(colorText, bender, player2);
+        holder3.getChildren().addAll(fodor, player3);
 
         //position panes for the game screen
         pane.changeCard(topCard());
@@ -134,21 +140,17 @@ public class UnoGame extends Application {
         title.setCenter(unoLabel);
         title.setOnMouseClicked(e -> container.setCenter(pane));
 
-        //replay button
-        playButton = new Button("Play Again");
-        playButton.setOnAction(arg0 -> startGame());
-        playButton.setAlignment(Pos.CENTER);
-
         winText = new Label();
         winText.setFont(Font.font("arial", 100));
         winText.setAlignment(Pos.CENTER);
         winnerHolder = new VBox();
-        winnerHolder.getChildren().add(playButton);
+        winnerHolder.getChildren().add(new Label("Click to play again"));
         winnerHolder.setAlignment(Pos.CENTER);
-        winScreen = new BorderPane();
+        winScreen = new FireworkPane();
         winScreen.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1, 1), CornerRadii.EMPTY, Insets.EMPTY)));
         winScreen.setCenter(winText);
         winScreen.setBottom(winnerHolder);
+        winScreen.setOnMouseClicked(arg0 -> startGame());
 
 
         container.setCenter(title);
@@ -158,6 +160,10 @@ public class UnoGame extends Application {
         autoTurns = new Timeline(new KeyFrame(Duration.seconds(2), e -> takeTurn()));
         autoTurns.setCycleCount(Timeline.INDEFINITE);
         autoTurns.play();
+
+        celebrate = new Timeline((new KeyFrame(Duration.seconds(3), e->winScreen.start())));
+        celebrate.setCycleCount(Timeline.INDEFINITE);
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -184,13 +190,11 @@ public class UnoGame extends Application {
             hand1.addCards(players[0]);
         }
     }
-    
+
     private void turn() {
         canPlay = false;
-        System.out.println("It's now player " + currentPlayer + "'s turn");
         refillDeck();
         drawToPlay();
-        System.out.println("Player has " + players[currentPlayer]);
         pile.add(players[currentPlayer].playCard(topCard(), color));
         color = topCard().getColor();
         performAction();
@@ -198,20 +202,16 @@ public class UnoGame extends Application {
         if (players[currentPlayer].cardsInHand() == 0)
             winner = currentPlayer;
         nextPlayer();
-        System.out.println(topCard());
         hand1.addCards(players[0]);
         updateText();
-        if(currentPlayer == 0) {
+        if (currentPlayer == 0) {
             autoTurns.stop();
         }
     }
 
     //only used for human player
-    public void turn(Card card) {
-        System.out.println("It's now player " + currentPlayer + "'s turn");
+    private void turn(Card card) {
         refillDeck();
-
-        System.out.println("Player has " + players[currentPlayer]);
         pile.add(card);
         color = topCard().getColor();
         canPlay = true;
@@ -219,8 +219,6 @@ public class UnoGame extends Application {
         if (players[currentPlayer].cardsInHand() == 0)
             winner = currentPlayer;
         nextPlayer();
-
-        System.out.println(topCard());
         hand1.addCards(players[0]);
         updateText();
         autoTurns.playFromStart();
@@ -250,25 +248,37 @@ public class UnoGame extends Application {
         player3.setText(Integer.toString(players[3].cardsInHand()));
 
         switch (currentPlayer) {
-            case(1):
+            case (1):
                 player1.setTextFill(Color.color(1, 1, 0));
                 player2.setTextFill(Color.color(0, 0, 0));
                 player3.setTextFill(Color.color(0, 0, 0));
+                bachmair.setTextFill(Color.color(1, 1, 0));
+                bender.setTextFill(Color.color(0, 0, 0));
+                fodor.setTextFill(Color.color(0, 0, 0));
                 break;
-            case(2):
+            case (2):
                 player2.setTextFill(Color.color(1, 1, 0));
                 player1.setTextFill(Color.color(0, 0, 0));
                 player3.setTextFill(Color.color(0, 0, 0));
+                bender.setTextFill(Color.color(1, 1, 0));
+                bachmair.setTextFill(Color.color(0, 0, 0));
+                fodor.setTextFill(Color.color(0, 0, 0));
                 break;
-            case(3):
+            case (3):
                 player3.setTextFill(Color.color(1, 1, 0));
                 player2.setTextFill(Color.color(0, 0, 0));
                 player1.setTextFill(Color.color(0, 0, 0));
+                fodor.setTextFill(Color.color(1, 1, 0));
+                bender.setTextFill(Color.color(0, 0, 0));
+                bachmair.setTextFill(Color.color(0, 0, 0));
                 break;
             default:
                 player1.setTextFill(Color.color(0, 0, 0));
                 player2.setTextFill(Color.color(0, 0, 0));
                 player3.setTextFill(Color.color(0, 0, 0));
+                bachmair.setTextFill(Color.color(0, 0, 0));
+                bender.setTextFill(Color.color(0, 0, 0));
+                fodor.setTextFill(Color.color(0, 0, 0));
         }
 
     }
@@ -280,8 +290,7 @@ public class UnoGame extends Application {
 
             if (currentPlayer == 0) {
                 pane.pickColor();
-            }
-            else {
+            } else {
                 color = players[currentPlayer].chooseColor();
             }
         }
@@ -335,7 +344,6 @@ public class UnoGame extends Application {
 
 
     private void takeTurn() {
-        System.out.println(canPlay);
         if (currentPlayer != 0 && canPlay) {
             turn();
             pane.changeCard(topCard());
@@ -346,9 +354,10 @@ public class UnoGame extends Application {
     }
 
     private void checkWinCondition() {
+        winner = 1;
         if (winner > -1) {
             container.setCenter(winScreen);
-            switch (winner){
+            switch (winner) {
                 case 0:
                     winText.setText("You win!!");
                     break;
@@ -362,6 +371,8 @@ public class UnoGame extends Application {
                     winText.setText("The winner is Fodor");
                     break;
             }
+            autoTurns.stop();
+            celebrate.playFrom(Duration.seconds(2.5));
         }
     }
 
@@ -374,58 +385,64 @@ public class UnoGame extends Application {
             pileView = new ImageView();
             deckView = new ImageView(new Image("images/back.png"));
 
-            deckView.setFitWidth(WIDTH / 4);
-            deckView.setFitHeight(HEIGHT / 2);
+            deckView.fitWidthProperty().bind(widthProperty().divide(4));
             deckView.setPreserveRatio(true);
             deckView.setOnMouseClicked(event -> drawFromDeck());
 
             changeCard(card);
 
+            colorPicker = new HBox();
+            colorPicker.setAlignment(Pos.CENTER);
+
             red = new Pane();
-            DoubleProperty paneWidth = new SimpleDoubleProperty(WIDTH / 5);
+            DoubleProperty paneWidth = new SimpleDoubleProperty( WIDTH/ 6);
             red.setMinWidth(paneWidth.doubleValue());
+            red.prefWidthProperty().bind(widthProperty().divide(6));
             red.setBackground(new Background(new BackgroundFill(Color.color(1, 0, 0), CornerRadii.EMPTY, Insets.EMPTY)));
             red.setOnMouseClicked(e -> {
                 color = "red";
                 setCenter(views);
-                colorText.setText(color);
+                updateText();
                 canPlay = true;
             });
             blue = new Pane();
             blue.setMinWidth(paneWidth.doubleValue());
+            blue.prefWidthProperty().bind(widthProperty().divide(6));
             blue.setBackground(new Background(new BackgroundFill(Color.color(0, 0, 1), CornerRadii.EMPTY, Insets.EMPTY)));
             blue.setOnMouseClicked(e -> {
                 color = "blue";
                 setCenter(views);
-                colorText.setText(color);
+                updateText();
                 canPlay = true;
             });
             green = new Pane();
             green.setMinWidth(paneWidth.doubleValue());
+            green.prefWidthProperty().bind(widthProperty().divide(6));
             green.setBackground(new Background(new BackgroundFill(Color.color(0, 1, 0), CornerRadii.EMPTY, Insets.EMPTY)));
             green.setOnMouseClicked(e -> {
                 color = "green";
                 setCenter(views);
-                colorText.setText(color);
+                updateText();
                 canPlay = true;
             });
             yellow = new Pane();
             yellow.setMinWidth(paneWidth.doubleValue());
+            yellow.prefWidthProperty().bind(widthProperty().divide(6));
             yellow.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 0), CornerRadii.EMPTY, Insets.EMPTY)));
             yellow.setOnMouseClicked(e -> {
                 color = "yellow";
                 setCenter(views);
-                colorText.setText(color);
+                updateText();
                 canPlay = true;
             });
 
-            colorPicker = new HBox();
-            colorPicker.setAlignment(Pos.CENTER);
+
             colorPicker.getChildren().addAll(red, blue, green, yellow);
 
             views = new HBox();
-            views.setSpacing(WIDTH / 10);
-            views.setAlignment(Pos.CENTER_RIGHT);
+            SimpleDoubleProperty space = new SimpleDoubleProperty(getWidth()/10);
+            views.setSpacing(space.doubleValue());
+            views.setAlignment(Pos.CENTER);
             views.getChildren().addAll(pileView, deckView);
             setCenter(views);
 
@@ -434,8 +451,7 @@ public class UnoGame extends Application {
         public void changeCard(Card card) {
             Image img = new Image("images/" + card.getColor() + card.getValue() + ".png");
             pileView.setImage(img);
-            pileView.setFitWidth(WIDTH / 4);
-            pileView.setFitHeight(HEIGHT / 2);
+            pileView.fitWidthProperty().bind(widthProperty().divide(4));
             pileView.setPreserveRatio(true);
         }
 
@@ -482,5 +498,65 @@ public class UnoGame extends Application {
             }
         }
     }
+
+    class FireworkPane extends BorderPane {
+        private final int MAX_PARTICLES = 50;
+        private Circle upFirework;
+        private PathTransition up;
+        private Circle[] particles;
+
+        public FireworkPane() {
+            upFirework = new Circle(20, 20, 20);
+            upFirework.radiusProperty().bind(widthProperty().divide(40));
+            upFirework.setFill(Color.LIGHTBLUE);
+            upFirework.setOpacity(0);
+            getChildren().add(upFirework);
+        }
+
+        public void start() {
+            int x = (int)(Math.random() * getWidth());
+            int y = (int)(Math.random() * getHeight() / 1.5);
+            particles = new Circle[MAX_PARTICLES];
+            PathTransition[] particleArcs = new PathTransition[particles.length];
+
+            SequentialTransition[] particleTransitions = new SequentialTransition[particles.length];
+            for(int i=0; i<particles.length; i++) {
+                particles[i] = new Circle(x, y, 10, Color.color(Math.random(), Math.random(), Math.random()));
+                particles[i].setOpacity(0);
+                getChildren().add(particles[i]);
+                particleArcs[i] = new PathTransition(Duration.millis(2000), new Line(x, y, x + (Math.random() * getWidth()/2 - getWidth()/4), y + (Math.random() * getHeight()/2 - getHeight()/4)), particles[i]);
+                particleArcs[i].setCycleCount(1);
+                particleArcs[i].setInterpolator(Interpolator.LINEAR);
+                FadeTransition particleFadesIn = new FadeTransition(Duration.millis(20), particles[i]);
+                particleFadesIn.setFromValue(0);
+                particleFadesIn.setToValue(1);
+                particleFadesIn.setCycleCount(1);
+                FadeTransition particleFadesOut = new FadeTransition(Duration.millis(1000), particles[i]);
+                particleFadesOut.setFromValue(1);
+                particleFadesOut.setToValue(0);
+                particleFadesOut.setCycleCount(1);
+                ParallelTransition fall = new ParallelTransition(particleArcs[i], particleFadesOut);
+                particleTransitions[i] = new SequentialTransition(particleFadesIn, fall);
+            }
+            FadeTransition fade = new FadeTransition(Duration.millis(50), upFirework);
+            fade.setFromValue(1);
+            fade.setToValue(0);
+            fade.setCycleCount(1);
+            up = new PathTransition(Duration.millis(1000), new Line(x, getHeight(), x, y), upFirework);
+            up.setCycleCount(1);
+
+            ParallelTransition falling = new ParallelTransition();
+            for(SequentialTransition p: particleTransitions) {
+                falling.getChildren().add(p);
+            }
+
+            SequentialTransition upwards = new SequentialTransition(up, fade);
+            SequentialTransition fireworks = new SequentialTransition(upwards, falling);
+            fireworks.play();
+            System.out.println(getChildren());
+
+        }
+    }
+
 
 }
