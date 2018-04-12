@@ -4,8 +4,10 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -30,7 +32,7 @@ public class UnoGame extends Application {
     private String color;
     private boolean clockwise;
     private int currentPlayer, winner;
-    private CardPane pane;
+    private CardPilePane pane;
     private HandPane hand1;
     private BorderPane title, container;
     private FireworkPane winScreen;
@@ -92,9 +94,9 @@ public class UnoGame extends Application {
         primaryStage.setTitle("Uno");
 
         //initialize all of the panes containing any information
-        pane = new CardPane(topCard());
-        hand1 = new HandPane(players[0]);
+        pane = new CardPilePane(topCard());
         container = new BorderPane();
+        hand1 = new HandPane(players[0]);
         player1 = new Label(Integer.toString(players[1].cardsInHand()));
         player1.setFont(Font.font("arial", 35));
         player2 = new Label(Integer.toString(players[2].cardsInHand()));
@@ -138,7 +140,7 @@ public class UnoGame extends Application {
         Label unoLabel = new Label("UNO");
         unoLabel.setFont(Font.font("arial", 145));
         title.setCenter(unoLabel);
-        title.setOnMouseClicked(e -> container.setCenter(pane));
+        title.setOnMouseClicked(event -> container.setCenter(pane));
 
         winText = new Label();
         winText.setFont(Font.font("arial", 100));
@@ -150,18 +152,18 @@ public class UnoGame extends Application {
         winScreen.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1, 1), CornerRadii.EMPTY, Insets.EMPTY)));
         winScreen.setCenter(winText);
         winScreen.setBottom(winnerHolder);
-        winScreen.setOnMouseClicked(arg0 -> startGame());
+        winScreen.setOnMouseClicked(event -> startGame());
 
 
         container.setCenter(title);
         Scene scene = new Scene(container, WIDTH, HEIGHT);
 
         //creates timer to make the computers play on their own
-        autoTurns = new Timeline(new KeyFrame(Duration.seconds(2), e -> takeTurn()));
+        autoTurns = new Timeline(new KeyFrame(Duration.seconds(2), event -> takeTurn()));
         autoTurns.setCycleCount(Timeline.INDEFINITE);
         autoTurns.play();
 
-        celebrate = new Timeline((new KeyFrame(Duration.seconds(3), e->winScreen.start())));
+        celebrate = new Timeline((new KeyFrame(Duration.seconds(3), event -> winScreen.start())));
         celebrate.setCycleCount(Timeline.INDEFINITE);
 
         primaryStage.setScene(scene);
@@ -354,7 +356,7 @@ public class UnoGame extends Application {
     }
 
     private void checkWinCondition() {
-        winner = 1;
+        //winner = 1;
         if (winner > -1) {
             container.setCenter(winScreen);
             switch (winner) {
@@ -376,18 +378,21 @@ public class UnoGame extends Application {
         }
     }
 
-    class CardPane extends BorderPane {
+    class CardPilePane extends BorderPane {
         private ImageView pileView, deckView;
         private HBox views, colorPicker;
         private Pane red, blue, green, yellow;
 
-        public CardPane(Card card) {
+        public CardPilePane(Card card) {
             pileView = new ImageView();
             deckView = new ImageView(new Image("images/back.png"));
 
-            deckView.fitWidthProperty().bind(widthProperty().divide(4));
+            deckView.fitHeightProperty().bind(heightProperty().divide(2));
             deckView.setPreserveRatio(true);
             deckView.setOnMouseClicked(event -> drawFromDeck());
+            deckView.setOnMouseEntered(event -> {
+                setCursor(Cursor.HAND);
+            });
 
             changeCard(card);
 
@@ -395,11 +400,11 @@ public class UnoGame extends Application {
             colorPicker.setAlignment(Pos.CENTER);
 
             red = new Pane();
-            DoubleProperty paneWidth = new SimpleDoubleProperty( WIDTH/ 6);
+            DoubleProperty paneWidth = new SimpleDoubleProperty(WIDTH / 6);
             red.setMinWidth(paneWidth.doubleValue());
             red.prefWidthProperty().bind(widthProperty().divide(6));
             red.setBackground(new Background(new BackgroundFill(Color.color(1, 0, 0), CornerRadii.EMPTY, Insets.EMPTY)));
-            red.setOnMouseClicked(e -> {
+            red.setOnMouseClicked(event -> {
                 color = "red";
                 setCenter(views);
                 updateText();
@@ -409,7 +414,7 @@ public class UnoGame extends Application {
             blue.setMinWidth(paneWidth.doubleValue());
             blue.prefWidthProperty().bind(widthProperty().divide(6));
             blue.setBackground(new Background(new BackgroundFill(Color.color(0, 0, 1), CornerRadii.EMPTY, Insets.EMPTY)));
-            blue.setOnMouseClicked(e -> {
+            blue.setOnMouseClicked(event -> {
                 color = "blue";
                 setCenter(views);
                 updateText();
@@ -419,7 +424,7 @@ public class UnoGame extends Application {
             green.setMinWidth(paneWidth.doubleValue());
             green.prefWidthProperty().bind(widthProperty().divide(6));
             green.setBackground(new Background(new BackgroundFill(Color.color(0, 1, 0), CornerRadii.EMPTY, Insets.EMPTY)));
-            green.setOnMouseClicked(e -> {
+            green.setOnMouseClicked(event -> {
                 color = "green";
                 setCenter(views);
                 updateText();
@@ -429,7 +434,7 @@ public class UnoGame extends Application {
             yellow.setMinWidth(paneWidth.doubleValue());
             yellow.prefWidthProperty().bind(widthProperty().divide(6));
             yellow.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 0), CornerRadii.EMPTY, Insets.EMPTY)));
-            yellow.setOnMouseClicked(e -> {
+            yellow.setOnMouseClicked(event -> {
                 color = "yellow";
                 setCenter(views);
                 updateText();
@@ -440,7 +445,7 @@ public class UnoGame extends Application {
             colorPicker.getChildren().addAll(red, blue, green, yellow);
 
             views = new HBox();
-            SimpleDoubleProperty space = new SimpleDoubleProperty(getWidth()/10);
+            SimpleDoubleProperty space = new SimpleDoubleProperty(getWidth() / 10);
             views.setSpacing(space.doubleValue());
             views.setAlignment(Pos.CENTER);
             views.getChildren().addAll(pileView, deckView);
@@ -451,7 +456,7 @@ public class UnoGame extends Application {
         public void changeCard(Card card) {
             Image img = new Image("images/" + card.getColor() + card.getValue() + ".png");
             pileView.setImage(img);
-            pileView.fitWidthProperty().bind(widthProperty().divide(4));
+            pileView.fitHeightProperty().bind(heightProperty().divide(2));
             pileView.setPreserveRatio(true);
         }
 
@@ -459,6 +464,11 @@ public class UnoGame extends Application {
             setCenter(colorPicker);
             updateText();
             canPlay = false;
+        }
+
+        public boolean onCard(double x, double y) {
+            Bounds boundsInScene = pileView.localToScene(pileView.getBoundsInLocal());
+            return y > boundsInScene.getMinY() && y < boundsInScene.getMaxY() && x > boundsInScene.getMinX() && x < boundsInScene.getMaxX();
         }
     }
 
@@ -475,28 +485,63 @@ public class UnoGame extends Application {
             getChildren().clear();
             for (int i = 0; i < player.cardsInHand(); i++) {
                 Card card = player.viewCard(i);
-                ImageView iv = new ImageView();
-                iv.setImage(new Image("images/" + card.getColor() + card.getValue() + ".png"));
-                iv.setFitWidth(WIDTH / 15.0);
-                iv.setFitHeight(150);
-                iv.setPreserveRatio(true);
-                int loc = i;
-                iv.setOnMouseClicked(arg0 -> {
-                    // TODO Auto-generated method stub
-                    if (currentPlayer == 0) {
-                        if (players[currentPlayer].isLegalMove(topCard(), color, loc)) {
-                            turn(players[currentPlayer].playCard(loc));
-                            hand1.addCards(players[0]);
-                            pane.changeCard(topCard());
-                            checkWinCondition();
-                        }
-
-                    }
-
-                });
+                CardView iv = new CardView(new Image("images/" + card.getColor() + card.getValue() + ".png"), i);
                 getChildren().add(iv);
             }
         }
+    }
+
+    class CardView extends ImageView {
+        private double dragDeltaX, dragDeltaY, lastX, lastY;
+        private ImageView iv;
+
+        public CardView(Image img, int loc) {
+            super(img);
+            iv = new ImageView(getImage());
+            fitHeightProperty().bind(container.heightProperty().divide(7));
+            setPreserveRatio(true);
+            iv.fitHeightProperty().bind(container.heightProperty().divide(7));
+            iv.setPreserveRatio(true);
+
+            setOnMousePressed(event -> {
+                // record a delta distance for the drag and drop operation.
+                if (currentPlayer == 0) {
+                    iv.setLayoutY(event.getSceneY() - iv.getFitHeight() / 2);
+                    iv.setLayoutX(event.getSceneX() - iv.getFitHeight() / 3);
+                    dragDeltaX = iv.getLayoutX() - event.getSceneX();
+                    dragDeltaY = iv.getLayoutY() - event.getSceneY();
+                    setVisible(false);
+                    container.getChildren().add(iv);
+                    setCursor(Cursor.MOVE);
+                }
+            });
+            setOnMouseReleased(event -> {
+                setVisible(true);
+                setCursor(Cursor.HAND);
+
+                if (currentPlayer == 0) {
+                    if (players[currentPlayer].isLegalMove(topCard(), color, loc) && pane.onCard(lastX, lastY)) {
+                        turn(players[currentPlayer].playCard(loc));
+                        hand1.addCards(players[0]);
+                        pane.changeCard(topCard());
+                        checkWinCondition();
+                    }
+                }
+                container.getChildren().remove(iv);
+
+
+            });
+            setOnMouseDragged(event -> {
+                lastX = event.getSceneX();
+                lastY = event.getSceneY();
+                iv.setLayoutX(event.getSceneX() + dragDeltaX);
+                iv.setLayoutY(event.getSceneY() + dragDeltaY);
+            });
+            setOnMouseEntered(event -> {
+                setCursor(Cursor.HAND);
+            });
+        }
+
     }
 
     class FireworkPane extends BorderPane {
@@ -514,17 +559,17 @@ public class UnoGame extends Application {
         }
 
         public void start() {
-            int x = (int)(Math.random() * getWidth());
-            int y = (int)(Math.random() * getHeight() / 1.5);
+            int x = (int) (Math.random() * getWidth());
+            int y = (int) (Math.random() * getHeight() / 1.5);
             particles = new Circle[MAX_PARTICLES];
             PathTransition[] particleArcs = new PathTransition[particles.length];
 
             SequentialTransition[] particleTransitions = new SequentialTransition[particles.length];
-            for(int i=0; i<particles.length; i++) {
+            for (int i = 0; i < particles.length; i++) {
                 particles[i] = new Circle(x, y, 10, Color.color(Math.random(), Math.random(), Math.random()));
                 particles[i].setOpacity(0);
                 getChildren().add(particles[i]);
-                particleArcs[i] = new PathTransition(Duration.millis(2000), new Line(x, y, x + (Math.random() * getWidth()/2 - getWidth()/4), y + (Math.random() * getHeight()/2 - getHeight()/4)), particles[i]);
+                particleArcs[i] = new PathTransition(Duration.millis(2000), new Line(x, y, x + (Math.random() * getWidth() / 2 - getWidth() / 4), y + (Math.random() * getHeight() / 2 - getHeight() / 4)), particles[i]);
                 particleArcs[i].setCycleCount(1);
                 particleArcs[i].setInterpolator(Interpolator.LINEAR);
                 FadeTransition particleFadesIn = new FadeTransition(Duration.millis(20), particles[i]);
@@ -546,7 +591,7 @@ public class UnoGame extends Application {
             up.setCycleCount(1);
 
             ParallelTransition falling = new ParallelTransition();
-            for(SequentialTransition p: particleTransitions) {
+            for (SequentialTransition p : particleTransitions) {
                 falling.getChildren().add(p);
             }
 
