@@ -1,9 +1,9 @@
-package Uno;
+package uno;
 
 import java.util.ArrayList;
 
 public class Deck {
-	ArrayList<Card> cards;
+	private ArrayList<Card> cards;
 
 	public Deck() {
 		int numWild = 4;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.2.2" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
   associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
-  <class id="1" language="java" name="Uno.Card" project="Uno" file="/Uno/src/Uno/Card.java" binary="false" 
+  <class id="1" language="java" name="uno.Card" project="uno" file="/uno/src/uno/Card.java" binary="false"
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="289" y="270"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -10,7 +10,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="Uno.Deck" project="Uno" file="/Uno/src/Uno/Deck.java" binary="false" 
+  <class id="2" language="java" name="uno.Deck" project="uno" file="/uno/src/uno/Deck.java" binary="false"
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="591" y="574"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -19,7 +19,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="Uno.Player" project="Uno" file="/Uno/src/Uno/Player.java" binary="false" 
+  <class id="3" language="java" name="uno.Player" project="uno" file="/uno/src/uno/Player.java" binary="false"
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="286" y="592"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -28,7 +28,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="Uno.UnoGame" project="Uno" file="/Uno/src/Uno/UnoGame.java" binary="false" 
+  <class id="4" language="java" name="uno.UnoGame" project="uno" file="/uno/src/uno/UnoGame.java" binary="false"
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="574" y="206"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -37,7 +37,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="Uno.UnoGame.CardPane" project="Uno" file="/Uno/src/Uno/UnoGame.java" 
+  <class id="5" language="java" name="uno.UnoGame.CardPane" project="uno" file="/uno/src/uno/UnoGame.java"
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="843" y="334"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -46,7 +46,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="Uno.UnoGame.HandPane" project="Uno" file="/Uno/src/Uno/UnoGame.java" 
+  <class id="6" language="java" name="uno.UnoGame.HandPane" project="uno" file="/uno/src/uno/UnoGame.java"
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="869" y="101"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -55,7 +55,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="Uno.Main" project="Uno" file="/Uno/src/Uno/Main.java" binary="false" 
+  <class id="7" language="java" name="uno.Main" project="uno" file="/uno/src/uno/Main.java" binary="false"
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="880" y="559"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -64,7 +64,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="8" language="java" name="Uno.ComputerPlayer" project="Uno" file="/Uno/src/Uno/ComputerPlayer.java" 
+  <class id="8" language="java" name="uno.ComputerPlayer" project="uno" file="/uno/src/uno/ComputerPlayer.java"
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="21" y="507"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 

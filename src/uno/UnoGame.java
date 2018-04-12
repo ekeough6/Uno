@@ -1,4 +1,4 @@
-package Uno;
+package uno;
 
 import javafx.animation.*;
 import javafx.application.Application;
@@ -89,9 +89,8 @@ public class UnoGame extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        //TODO Auto-generated method stub
         initGame();
-        primaryStage.setTitle("Uno");
+        primaryStage.setTitle("uno");
 
         //initialize all of the panes containing any information
         pane = new CardPilePane(topCard());
@@ -111,7 +110,6 @@ public class UnoGame extends Application {
         fodor.setFont(Font.font("arial", 35));
         colorText = new Label(color);
         colorText.setFont(Font.font("arial", 35));
-        colorText.setStyle("-fx-stroke: black; -fx-stroke-width: 1;");
         updateText();
         holder1 = new VBox();
         holder2 = new VBox();

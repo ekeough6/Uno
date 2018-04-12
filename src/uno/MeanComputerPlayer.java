@@ -1,7 +1,6 @@
-package Uno;
+package uno;
 
 public class MeanComputerPlayer extends Player {
-	
 
 	public MeanComputerPlayer(Deck d) {
 		super(d);
@@ -32,6 +31,4 @@ public class MeanComputerPlayer extends Player {
 		}
 		return new String[] {"red", "blue", "green", "yellow"}[(int)(Math.random()*4)];
 	}
-
-
 }

@@ -1,4 +1,4 @@
-package Uno;
+package uno;
 import java.util.ArrayList;
 
 public class Card implements Comparable {
@@ -58,7 +58,5 @@ public class Card implements Comparable {
 			else
 				return -1;
 		}
-
-
 	}
 }

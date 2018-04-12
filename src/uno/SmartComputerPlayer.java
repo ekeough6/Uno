@@ -1,4 +1,4 @@
-package Uno;
+package uno;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -8,7 +8,6 @@ public class SmartComputerPlayer extends Player {
         super(d);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Card playCard(Card card, String color) {
         ArrayList<Integer> cards = new ArrayList<>();

@@ -1,4 +1,4 @@
-package Uno;
+package uno;
 
 public class DumbComputerPlayer extends Player{
 

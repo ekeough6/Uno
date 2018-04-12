@@ -1,11 +1,10 @@
-package Uno;
+package uno;
 import java.util.ArrayList;
 
-abstract class Player {
+public abstract class Player {
 
 	private ArrayList<Card> hand;
 	private final ArrayList<Integer> legalMoves;
-
 
 	public Player(Deck d) {
 		hand = new ArrayList<>();
