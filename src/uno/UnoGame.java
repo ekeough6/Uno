@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -20,8 +22,13 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
+/**
+ * UnoGame implements a JavaFX application that contains a game of UNO and
+ * allows a human player to play against three computer players
+ */
 public class UnoGame extends Application {
 
     private final int WIDTH = 1000;
@@ -40,12 +47,15 @@ public class UnoGame extends Application {
     private VBox holder1, holder2, holder3, winnerHolder;
     private boolean canPlay;
     private Timeline autoTurns, celebrate;
-
+    private MediaPlayer winMusic;
 
     public UnoGame() {
         newGame();
     }
 
+    /**
+     * Generates a new deck, creates new players, and restarts the winner.
+     */
     private void newGame() {
         deck = new Deck();
         deck.shuffle();
@@ -60,6 +70,10 @@ public class UnoGame extends Application {
         winner = -1;
     }
 
+
+    /**
+     * Initializes the card pile and restarts the turn order.
+     */
     private void initGame() {
         pile.add(deck.drawCard());
         color = topCard().getColor();
@@ -71,22 +85,34 @@ public class UnoGame extends Application {
         clockwise = true;
     }
 
-
+    /**
+     * Resets everything in the game, updates all of the on-screen text, updates the player's hand.
+     */
     public void startGame() {
         newGame();
         initGame();
         autoTurns.play();
         celebrate.stop();
+        winMusic.pause();
         container.setCenter(pane);
         updateText();
         hand1.addCards(players[0]);
         pane.changeCard(topCard());
+        pane.showCard();
     }
 
+    /**
+     * Opens up the GUI and starts the game
+     */
     public void begin() {
         Application.launch();
     }
 
+    /**
+     * The main access point of the program that initializes all of the panes and nodes required for the program to run properly.
+     *
+     * @param primaryStage the primary stage for this application, onto which the application scene can be set. The primary stage will be embedded in the browser if the application was launched as an applet. Applications may create other stages, if needed, but they will not be primary stages and will not be embedded in the browser.
+     */
     @Override
     public void start(Stage primaryStage) {
         initGame();
@@ -104,10 +130,23 @@ public class UnoGame extends Application {
         player3.setFont(Font.font("arial", 35));
         bender = new Label("Bender:");
         bender.setFont(Font.font("arial", 35));
+        ImageView benderIV = new ImageView(new Image("images/bender.jpg"));
+        benderIV.fitHeightProperty().bind(pane.heightProperty().divide(6));
+        benderIV.setPreserveRatio(true);
         bachmair = new Label("Bachmair:");
         bachmair.setFont(Font.font("arial", 35));
+        ImageView bachmairIV = new ImageView(new Image("images/bachmair.png"));
+        bachmairIV.fitHeightProperty().bind(pane.heightProperty().divide(6));
+        bachmairIV.setPreserveRatio(true);
         fodor = new Label("Fodor:");
         fodor.setFont(Font.font("arial", 35));
+        ImageView fodorIV = new ImageView(new Image("images/fodor.png"));
+        fodorIV.fitHeightProperty().bind(pane.heightProperty().divide(6));
+        fodorIV.setPreserveRatio(true);
+        fodorIV.setOnMouseClicked(event -> {
+            winner = 3;
+            checkWinCondition();
+        });
         colorText = new Label(color);
         colorText.setFont(Font.font("arial", 35));
         updateText();
@@ -119,9 +158,9 @@ public class UnoGame extends Application {
         holder1.setAlignment(Pos.CENTER);
         holder2.setAlignment(Pos.CENTER);
         holder3.setAlignment(Pos.CENTER);
-        holder1.getChildren().addAll(bachmair, player1);
-        holder2.getChildren().addAll(colorText, bender, player2);
-        holder3.getChildren().addAll(fodor, player3);
+        holder1.getChildren().addAll(bachmairIV, bachmair, player1);
+        holder2.getChildren().addAll(colorText, benderIV, bender, player2);
+        holder3.getChildren().addAll(fodorIV, fodor, player3);
 
         //position panes for the game screen
         pane.changeCard(topCard());
@@ -134,10 +173,10 @@ public class UnoGame extends Application {
 
         //initialize title screen
         title = new BorderPane();
-        title.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1, 1), CornerRadii.EMPTY, Insets.EMPTY)));
-        Label unoLabel = new Label("UNO");
-        unoLabel.setFont(Font.font("arial", 145));
-        title.setCenter(unoLabel);
+        ImageView uno = new ImageView("images/logo.jpg");
+        uno.fitHeightProperty().bind(container.heightProperty());
+        uno.fitWidthProperty().bind(container.widthProperty());
+        title.setCenter(uno);
         title.setOnMouseClicked(event -> container.setCenter(pane));
 
         winText = new Label();
@@ -147,11 +186,12 @@ public class UnoGame extends Application {
         winnerHolder.getChildren().add(new Label("Click to play again"));
         winnerHolder.setAlignment(Pos.CENTER);
         winScreen = new FireworkPane();
-        winScreen.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1, 1), CornerRadii.EMPTY, Insets.EMPTY)));
+        winScreen.setBackground(new Background(new BackgroundFill(Color.color(.03, .94, .91, 1), CornerRadii.EMPTY, Insets.EMPTY)));
         winScreen.setCenter(winText);
         winScreen.setBottom(winnerHolder);
         winScreen.setOnMouseClicked(event -> startGame());
 
+        winMusic = new MediaPlayer(new Media(Paths.get("audio/music.mp3").toUri().toString()));
 
         container.setCenter(title);
         Scene scene = new Scene(container, WIDTH, HEIGHT);
@@ -161,7 +201,7 @@ public class UnoGame extends Application {
         autoTurns.setCycleCount(Timeline.INDEFINITE);
         autoTurns.play();
 
-        celebrate = new Timeline((new KeyFrame(Duration.seconds(3), event -> winScreen.start())));
+        celebrate = new Timeline((new KeyFrame(Duration.seconds(2.25), event -> winScreen.start())));
         celebrate.setCycleCount(Timeline.INDEFINITE);
 
         primaryStage.setScene(scene);
@@ -169,13 +209,17 @@ public class UnoGame extends Application {
 
     }
 
-    //draws a card from the deck into the current player's hand
+    /**
+     * Draws a card from the deck into the current player's hand
+     */
     private void draw() {
         refillDeck();
         players[currentPlayer].draw(deck);
     }
 
-    //draws cards until the player has a card they can play
+    /**
+     * Draws cards into the current player's hand until the current player has a card they can play.
+     */
     private void drawToPlay() {
         while (!players[currentPlayer].hasLegalMove(topCard(), color)) {
             draw();
@@ -183,14 +227,19 @@ public class UnoGame extends Application {
 
     }
 
-    //draws a single card into the human player's hand
-    public void drawFromDeck() {
+    /**
+     * Draws a single card into the human player's hand
+     */
+    private void drawFromDeck() {
         if (!players[currentPlayer].hasLegalMove(topCard(), color)) {
             draw();
             hand1.addCards(players[0]);
         }
     }
 
+    /**
+     * Processes the turn for the current computer player
+     */
     private void turn() {
         canPlay = false;
         refillDeck();
@@ -209,7 +258,10 @@ public class UnoGame extends Application {
         }
     }
 
-    //only used for human player
+    /**
+     * Processes the turn for the human player
+     * @param card Card being played from the human player's hand
+     */
     private void turn(Card card) {
         refillDeck();
         pile.add(card);
@@ -224,6 +276,9 @@ public class UnoGame extends Application {
         autoTurns.playFromStart();
     }
 
+    /**
+     * Changes all of the text on screen to be accurate. Changes the color of the color text to reflect the active color.
+     */
     private void updateText() {
         colorText.setText(color);
         switch (color) {
@@ -283,6 +338,9 @@ public class UnoGame extends Application {
 
     }
 
+    /**
+     * Performs the action of the last card if the last played card was an action card
+     */
     private void performAction() {
         Card top = topCard();
 
@@ -322,6 +380,9 @@ public class UnoGame extends Application {
 
     }
 
+    /**
+     * Takes the cards from the played pile and shuffles them back into the deck.
+     */
     private void refillDeck() {
         if (deck.isEmpty()) {
             Card top = pile.remove(pile.size() - 1);
@@ -331,6 +392,9 @@ public class UnoGame extends Application {
         }
     }
 
+    /**
+     * Changes the current player to the next player according to the current direction of play.
+     */
     private void nextPlayer() {
         if (clockwise)
             currentPlayer = (currentPlayer < players.length - 1) ? currentPlayer + 1 : 0;
@@ -338,11 +402,17 @@ public class UnoGame extends Application {
             currentPlayer = (currentPlayer > 0) ? currentPlayer - 1 : players.length - 1;
     }
 
+    /**
+     * Retrieves the card currently at the top of the played pile
+     * @return The card at the top of the played pile
+     */
     private Card topCard() {
         return pile.get(pile.size() - 1);
     }
 
-
+    /**
+     * Takes the turn for a computer player and updates the shown card to the played card.
+     */
     private void takeTurn() {
         if (currentPlayer != 0 && canPlay) {
             turn();
@@ -353,8 +423,10 @@ public class UnoGame extends Application {
 
     }
 
+    /**
+     * Checks to see if any players currently have zero cards and changes the screen to the appropriate win screen if a player has won.
+     */
     private void checkWinCondition() {
-        //winner = 1;
         if (winner > -1) {
             container.setCenter(winScreen);
             switch (winner) {
@@ -373,9 +445,15 @@ public class UnoGame extends Application {
             }
             autoTurns.stop();
             celebrate.playFrom(Duration.seconds(2.5));
+            winMusic.setStartTime(Duration.seconds(5));
+            winMusic.play();
         }
     }
 
+    /**
+     * CardPilePane is an extension of BorderPane that shows the last played card, the draw pile, and allows the human player to pick
+     * a color when they play a wild card
+     */
     class CardPilePane extends BorderPane {
         private ImageView pileView, deckView;
         private HBox views, colorPicker;
@@ -391,6 +469,9 @@ public class UnoGame extends Application {
             deckView.setOnMouseEntered(event -> {
                 setCursor(Cursor.HAND);
             });
+            deckView.setOnMouseExited(event -> {
+                setCursor(Cursor.DEFAULT);
+            });
 
             changeCard(card);
 
@@ -404,9 +485,8 @@ public class UnoGame extends Application {
             red.setBackground(new Background(new BackgroundFill(Color.color(1, 0, 0), CornerRadii.EMPTY, Insets.EMPTY)));
             red.setOnMouseClicked(event -> {
                 color = "red";
-                setCenter(views);
                 updateText();
-                canPlay = true;
+                showCard();
             });
             blue = new Pane();
             blue.setMinWidth(paneWidth.doubleValue());
@@ -414,9 +494,8 @@ public class UnoGame extends Application {
             blue.setBackground(new Background(new BackgroundFill(Color.color(0, 0, 1), CornerRadii.EMPTY, Insets.EMPTY)));
             blue.setOnMouseClicked(event -> {
                 color = "blue";
-                setCenter(views);
                 updateText();
-                canPlay = true;
+                showCard();
             });
             green = new Pane();
             green.setMinWidth(paneWidth.doubleValue());
@@ -424,9 +503,8 @@ public class UnoGame extends Application {
             green.setBackground(new Background(new BackgroundFill(Color.color(0, 1, 0), CornerRadii.EMPTY, Insets.EMPTY)));
             green.setOnMouseClicked(event -> {
                 color = "green";
-                setCenter(views);
                 updateText();
-                canPlay = true;
+                showCard();
             });
             yellow = new Pane();
             yellow.setMinWidth(paneWidth.doubleValue());
@@ -434,9 +512,8 @@ public class UnoGame extends Application {
             yellow.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 0), CornerRadii.EMPTY, Insets.EMPTY)));
             yellow.setOnMouseClicked(event -> {
                 color = "yellow";
-                setCenter(views);
                 updateText();
-                canPlay = true;
+                showCard();
             });
 
 
@@ -451,6 +528,10 @@ public class UnoGame extends Application {
 
         }
 
+        /**
+         * Updates the shown card on the play pile to be the last played card
+         * @param card Card whose image is to be shown
+         */
         public void changeCard(Card card) {
             Image img = new Image("images/" + card.getColor() + card.getValue() + ".png");
             pileView.setImage(img);
@@ -458,18 +539,38 @@ public class UnoGame extends Application {
             pileView.setPreserveRatio(true);
         }
 
+        /**
+         * Changes the center of this pane to be the play pile and the draw deck.
+         */
+        public void showCard() {
+            setCenter(views);
+            canPlay = true;
+        }
+
+        /**
+         * Changes the center of this pane to be the color picker.
+         */
         public void pickColor() {
             setCenter(colorPicker);
             updateText();
             canPlay = false;
         }
 
+        /**
+         * Checks to see if the given coordinates are contained within the play pile.
+         * @param x x-coordinate
+         * @param y y-coordinate
+         * @return true if the given coordinates are contained within the play pile; otherwise, false.
+         */
         public boolean onCard(double x, double y) {
             Bounds boundsInScene = pileView.localToScene(pileView.getBoundsInLocal());
             return y > boundsInScene.getMinY() && y < boundsInScene.getMaxY() && x > boundsInScene.getMinX() && x < boundsInScene.getMaxX();
         }
     }
 
+    /**
+     * HandPane is an extension of FlowPane in which the hand of the human player is shown
+     */
     class HandPane extends FlowPane {
         public HandPane(Player player) {
             setVgap(8);
@@ -478,7 +579,10 @@ public class UnoGame extends Application {
             addCards(player);
         }
 
-
+        /**
+         * Updates the cards shown in this pane to be those in the hand of the given player
+         * @param player Player whose hand will be shown in the pane
+         */
         public void addCards(Player player) {
             getChildren().clear();
             for (int i = 0; i < player.cardsInHand(); i++) {
@@ -489,6 +593,11 @@ public class UnoGame extends Application {
         }
     }
 
+    /**
+     * CardView is an extension of the ImageView class in which one can
+     * click on the image and drag it around the screen in order for the human player
+     * to take their turn.
+     */
     class CardView extends ImageView {
         private double dragDeltaX, dragDeltaY, lastX, lastY;
         private ImageView iv;
@@ -542,6 +651,10 @@ public class UnoGame extends Application {
 
     }
 
+    /**
+     * The FireworkPane is and extension of BorderPane in which a firework animation will play
+     * which lasts around two and a half seconds
+     */
     class FireworkPane extends BorderPane {
         private final int MAX_PARTICLES = 50;
         private Circle upFirework;
@@ -549,13 +662,16 @@ public class UnoGame extends Application {
         private Circle[] particles;
 
         public FireworkPane() {
-            upFirework = new Circle(20, 20, 20);
+            upFirework = new Circle(20, 20, 10);
             upFirework.radiusProperty().bind(widthProperty().divide(40));
             upFirework.setFill(Color.LIGHTBLUE);
             upFirework.setOpacity(0);
             getChildren().add(upFirework);
         }
 
+        /**
+         * Plays the firework animation on this pane
+         */
         public void start() {
             int x = (int) (Math.random() * getWidth());
             int y = (int) (Math.random() * getHeight() / 1.5);
@@ -567,7 +683,7 @@ public class UnoGame extends Application {
                 particles[i] = new Circle(x, y, 10, Color.color(Math.random(), Math.random(), Math.random()));
                 particles[i].setOpacity(0);
                 getChildren().add(particles[i]);
-                particleArcs[i] = new PathTransition(Duration.millis(2000), new Line(x, y, x + (Math.random() * getWidth() / 2 - getWidth() / 4), y + (Math.random() * getHeight() / 2 - getHeight() / 4)), particles[i]);
+                particleArcs[i] = new PathTransition(Duration.millis(1500), new Line(x, y, x + (Math.random() * getWidth() / 2 - getWidth() / 4), y + (Math.random() * getHeight() / 2 - getHeight() / 4)), particles[i]);
                 particleArcs[i].setCycleCount(1);
                 particleArcs[i].setInterpolator(Interpolator.LINEAR);
                 FadeTransition particleFadesIn = new FadeTransition(Duration.millis(20), particles[i]);
@@ -585,7 +701,7 @@ public class UnoGame extends Application {
             fade.setFromValue(1);
             fade.setToValue(0);
             fade.setCycleCount(1);
-            up = new PathTransition(Duration.millis(1000), new Line(x, getHeight(), x, y), upFirework);
+            up = new PathTransition(Duration.millis(750), new Line(x, getHeight(), x, y), upFirework);
             up.setCycleCount(1);
 
             ParallelTransition falling = new ParallelTransition();
@@ -596,8 +712,6 @@ public class UnoGame extends Application {
             SequentialTransition upwards = new SequentialTransition(up, fade);
             SequentialTransition fireworks = new SequentialTransition(upwards, falling);
             fireworks.play();
-            System.out.println(getChildren());
-
         }
     }
 

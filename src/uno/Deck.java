@@ -2,9 +2,17 @@ package uno;
 
 import java.util.ArrayList;
 
+/**
+ * Deck is a collection of cards from which cards can be drawn, shuffled,
+ * and to which cards can be added
+ */
 public class Deck {
 	private ArrayList<Card> cards;
 
+	/**
+	 * Creates a new un-shuffled deck of UNO cards with four of each wild card, and
+	 * one card of each action and number in all four colors for a total of 60 cards
+	 */
 	public Deck() {
 		int numWild = 4;
 		cards = new ArrayList<>();
@@ -29,7 +37,10 @@ public class Deck {
 			}
 		}
 	}
-	
+
+	/**
+	 * Randomizes the positions of every card in the deck to shuffle the deck
+	 */
 	public void shuffle() {
 		ArrayList<Card> newCards = new ArrayList<>();
 		while(cards.size() > 0) {
@@ -37,23 +48,31 @@ public class Deck {
 		}
 		cards = newCards;
 	}
-	
-	public String toString() {
-		return cards.toString();
-	}
-	
+
+	/**
+	 * Gives the card from the top of the deck
+	 * @return The first card in the deck
+	 */
 	public Card drawCard() {
 		return cards.remove(0);
 	}
-	
+
+	/**
+	 * Checks to see if the deck has 0 cards left
+	 * @return true if the deck has 0 cards; otherwise, false
+	 */
 	public boolean isEmpty() {
 		return cards.size() == 0;
 	}
-	
+
+	/**
+	 * Adds all of the cards from a given set of cards into the deck
+	 * @param pile cards ot be added to the deck
+	 */
 	public void refillDeck(ArrayList<Card> pile) {
 		cards.addAll(pile);
 		shuffle();
 	}
-	
-	
+
+
 }
